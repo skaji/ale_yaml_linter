@@ -1,0 +1,20 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use YAML::PP::Loader;
+use File::Basename ();
+
+my $file = shift;
+
+eval { YAML::PP::Loader->new->load_file($file) };
+my $err = $@;
+exit if !$err;
+
+my ($line)   = $err =~ /^Line\s*:\s*(\d+)/m;
+my ($column) = $err =~ /^Column\s*:\s*(\d+)/m;
+
+if (defined $line && defined $column) {
+    my $base = File::Basename::basename $file;
+    print "$base:$line:$column: invalid yaml\n";
+}
